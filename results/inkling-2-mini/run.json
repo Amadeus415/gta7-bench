@@ -1,0 +1,6 @@
+{
+  "label": "Inkling 2 Mini (local)",
+  "harness": "Claude Code, model served by llama.cpp on this laptop",
+  "minutes": 203,
+  "notes": "One unattended session of 203 minutes on an M4 Pro with 48 GB, 4-bit weights (IQ4_NL), a 100,000-token context and roughly 8 to 23 tokens per second. Shell access was limited to the test tool and read-only commands. It wrote about 2,000 lines over three hours before running the game once, and that first run loaded without errors."
+}

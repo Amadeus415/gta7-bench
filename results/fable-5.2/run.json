@@ -1,0 +1,6 @@
+{
+  "label": "Claude Fable 5.2 (high effort)",
+  "harness": "Claude Code, cloud model",
+  "minutes": 77,
+  "notes": "One unattended session of about 77 minutes with full shell access. 17 source modules."
+}

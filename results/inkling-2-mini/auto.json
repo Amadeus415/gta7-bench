@@ -1,0 +1,73 @@
+{
+  "name": "inkling-2-mini",
+  "passed": 10,
+  "total": 10,
+  "checks": [
+    {
+      "id": "loads",
+      "label": "Loads without errors",
+      "pass": true
+    },
+    {
+      "id": "renders",
+      "label": "Draws a scene",
+      "pass": true,
+      "detail": "84 colours"
+    },
+    {
+      "id": "hook",
+      "label": "Test hook reports the player on foot",
+      "pass": true,
+      "detail": "{\"mode\":\"foot\",\"x\":8.172591068296024,\"y\":0.12,\"z\":-39.4943746627548,\"speed\":0}"
+    },
+    {
+      "id": "enter",
+      "label": "F gets into the car",
+      "pass": true,
+      "detail": "mode car"
+    },
+    {
+      "id": "drive",
+      "label": "W drives the car",
+      "pass": true,
+      "detail": "44.9 m in 3 s, top 24.9 m/s"
+    },
+    {
+      "id": "steer",
+      "label": "D steers the car",
+      "pass": true,
+      "detail": "59 degrees"
+    },
+    {
+      "id": "exit",
+      "label": "F gets out again",
+      "pass": true,
+      "detail": "mode foot"
+    },
+    {
+      "id": "walk",
+      "label": "W walks",
+      "pass": true,
+      "detail": "8.7 m in 3 s"
+    },
+    {
+      "id": "fps",
+      "label": "Holds 30 frames per second",
+      "pass": true,
+      "detail": "60 fps, browser limit 60"
+    },
+    {
+      "id": "soak",
+      "label": "30 more seconds of play without errors",
+      "pass": true
+    }
+  ],
+  "code": {
+    "files": 10,
+    "lines": 2007,
+    "bytes": 76755
+  },
+  "fps": 60,
+  "idle": 60,
+  "errors": []
+}

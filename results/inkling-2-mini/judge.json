@@ -1,0 +1,34 @@
+{
+  "title": "Lumen City",
+  "verdict": "A real, working game from a model running on a laptop: it loaded cleanly the first time it was run and passes every play-test check. It is much barer than the other two: one car model, a handful of traffic cars and pedestrians, and a single delivery loop. Its A and D keys also turn the wrong way round.",
+  "areas": {
+    "city": {
+      "score": 5,
+      "note": "Four-by-four grid of box towers sharing one window texture, with street lamps, a park block and a plaza. No crossings, traffic lights or landmarks."
+    },
+    "character": {
+      "score": 4,
+      "note": "Blocky figure with a walk cycle, run and jump; collides with buildings and cars. A and D are swapped (D turns left), and the camera passes through buildings when you stand next to one."
+    },
+    "vehicles": {
+      "score": 3,
+      "note": "Four parked cars of one model in different colours. Driving, braking, reversing and collisions work, but steering is mirrored (D steers left). Traffic cars cannot be taken, and the headlights light very little."
+    },
+    "world": {
+      "score": 3,
+      "note": "4 traffic cars and 9 pedestrians on fixed routes. They slow for the player but do nothing else."
+    },
+    "hud": {
+      "score": 6,
+      "note": "Whole-city minimap with player, cars and mission marker, a km/h readout, score, an objective panel with distance, and key hints."
+    },
+    "gameplay": {
+      "score": 4,
+      "note": "One endless courier loop: pick up at the beacon, deliver for +250 (checked, it works). No timer, no way to fail, nothing else to do."
+    },
+    "atmosphere": {
+      "score": 5,
+      "note": "Three-minute day and night with shadows, fog and lit windows; roads go almost black at night. Synthesised sound is in the code but was not listened to."
+    }
+  }
+}

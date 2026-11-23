@@ -1,0 +1,13 @@
+{
+  "title": "Halcyon Bay",
+  "verdict": "A complete harbour town built in half the time: named streets, working traffic lights, courier jobs, a race and a wanted level all function. It looks plainer than Port Vesper, with boxier cars and flatter buildings.",
+  "areas": {
+    "city": { "score": 8, "note": "Six-by-six grid of named streets with crossings, about 60 buildings in three styles, a park, a fountain plaza, and a promenade with a pier and lighthouse." },
+    "character": { "score": 7, "note": "Blocky jointed figure with walk, run and jump animations; steps up onto low objects. Solid collisions." },
+    "vehicles": { "score": 8, "note": "Seven car models, parked or carjacked from AI drivers (checked with a police cruiser). Drifts, skid marks, collisions. Models are simple boxes." },
+    "world": { "score": 8, "note": "26 AI cars and 2 police patrols obeying traffic lights, and 44 pedestrians who flee speeding cars." },
+    "hud": { "score": 9, "note": "Rotating minimap, dial speedometer with gear, clock, cash, wanted stars, and the current street and district name." },
+    "gameplay": { "score": 9, "note": "Timed courier job paid $516 when completed, with fragile cargo that loses value in crashes; 12-checkpoint race started; stealing a cruiser gave 2 wanted stars." },
+    "atmosphere": { "score": 7, "note": "Seven-minute day and night with stars, street-lamp pools, headlights, a lighthouse beam and a rippling sea. Flatter lighting, no post-processing. Sound not listened to." }
+  }
+}

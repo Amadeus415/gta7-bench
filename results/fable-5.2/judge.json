@@ -1,0 +1,13 @@
+{
+  "title": "Port Vesper",
+  "verdict": "A seaside city that feels like a finished small game: a boardwalk with a Ferris wheel pier, a park, a plaza and container docks, busy with traffic and people, with four working activities and the best lighting of the three.",
+  "areas": {
+    "city": { "score": 9, "note": "About twenty blocks with eight building types, shopfronts and signs, plus a park, a plaza, a beach promenade with a pier, and docks with stunt ramps." },
+    "character": { "score": 8, "note": "Jointed figure with knees and elbows; walks, runs, jumps and tumbles, and kicks loose props. Solid against everything tried." },
+    "vehicles": { "score": 9, "note": "Seven car models, any of them takeable whether parked or moving (checked by taking a patrol car). Slides, handbrake drifts and ramp jumps. Got wedged on street furniture once." },
+    "world": { "score": 9, "note": "55 AI drivers that stop at working traffic lights and 60 pedestrians who cross at corners and dodge cars." },
+    "hud": { "score": 9, "note": "Rotating minimap with job blips, speedometer with gear, cash, heat stars, and an objective panel with distance, bearing and timer." },
+    "gameplay": { "score": 9, "note": "Three-parcel courier run paid $740 when completed; nine-gate street sprint started; stealing a patrol car raised heat to 2. Also taxi shifts and 24 tokens." },
+    "atmosphere": { "score": 9, "note": "Day and night with clouds, sea, shadows, bloom, neon signs and lit windows after dark. Sound and radio are in the code but were not listened to." }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "label": "Claude Opus 5.5 (high effort)",
+  "harness": "Claude Code, cloud model",
+  "minutes": 38,
+  "notes": "One unattended session of about 38 minutes with full shell access. 13 source modules."
+}
