@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTA7 Bench</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --surface: #ffffff; --ink: #1c1b19; --muted: #6b675f; --line: #e2ded5;
+    --play: #2f6fb3; --feat: #e08a2e; --pass: #1f7a4d; --fail: #b3362c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15161a; --surface: #1e2026; --ink: #ece9e2; --muted: #9a968c; --line: #2f323a;
+      --play: #6aa5e6; --feat: #f0a552; --pass: #5cc48f; --fail: #f0796d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15161a; --surface: #1e2026; --ink: #ece9e2; --muted: #9a968c; --line: #2f323a;
+    --play: #6aa5e6; --feat: #f0a552; --pass: #5cc48f; --fail: #f0796d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 2.4rem; line-height: 1.1; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.4rem; margin: 0; }
+  h3 { font-size: 1rem; margin: 24px 0 8px; }
+  a { color: inherit; }
+  .lede { max-width: 68ch; color: var(--muted); margin: 0 0 32px; }
+  .muted { color: var(--muted); font-weight: 400; font-size: 0.9em; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  .summary th { text-align: left; font-size: 0.8rem; color: var(--muted); font-weight: 500;
+    padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .summary th.num { text-align: right; }
+  .summary td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .summary .rank { color: var(--muted); width: 2ch; }
+  .summary .total { font-size: 1.5rem; font-weight: 700; }
+  .bar-cell { width: 34%; min-width: 160px; }
+  .bar { display: flex; gap: 2px; height: 14px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .seg.play { background: var(--play); } .seg.feat { background: var(--feat); }
+  .legend { display: flex; gap: 20px; font-size: 0.85rem; color: var(--muted); margin: 12px 0 40px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 24px; margin: 0 0 24px; }
+  .card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .card header p { margin: 4px 0 0; }
+  .score { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0 0; }
+  video { width: 100%; aspect-ratio: 16 / 9; display: block; margin: 16px 0 0;
+    border-radius: 8px; border: 1px solid var(--line); background: #000; }
+  figure { margin: 0; }
+  figure img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block;
+    border-radius: 6px; border: 1px solid var(--line); background: #000; }
+  figcaption { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .cols { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; }
+  .checks { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; }
+  .checks li { padding: 3px 0; }
+  .mark { display: inline-block; min-width: 3.2ch; font-weight: 600; font-size: 0.8rem; }
+  .pass .mark { color: var(--pass); } .fail .mark { color: var(--fail); }
+  .areas th { text-align: left; font-weight: 500; white-space: nowrap; padding: 4px 12px 4px 0; vertical-align: top; }
+  .areas td { padding: 4px 12px 4px 0; vertical-align: top; font-size: 0.92rem; }
+  .method { max-width: 72ch; }
+  .method li { margin-bottom: 6px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+  @media (max-width: 760px) {
+    .shots { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; gap: 0; }
+    h1 { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>GTA7 Bench</h1>
+  <p class="lede">Three models were each given one unattended session to build an original
+  miniature open-world city game in the browser: walk around, get into any car, drive off.
+  Same brief, same starting folder, same agent harness (Claude Code). Each game was then
+  play-tested by a script and reviewed by a judge.</p>
+
+  <div class="scroll">
+  <table class="summary">
+    <thead><tr>
+      <th></th><th>Model</th><th class="num">Score</th><th></th>
+      <th class="num">Play-test</th><th class="num">Features</th>
+      <th class="num">Build time</th><th class="num">Lines of code</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rank">1</td>
+        <td><a href="#fable-5.2"><strong>Claude Fable 5.2 (high effort)</strong></a>
+          <div class="muted">Port Vesper</div></td>
+        <td class="num total">92</td>
+        <td class="bar-cell"><div class="bar" role="img" aria-label="30 play-test points and 62 feature points out of 100">
+          <span class="seg play" style="width:30%"></span><span class="seg feat" style="width:62%"></span></div></td>
+        <td class="num">30<span class="muted">/30</span></td>
+        <td class="num">62<span class="muted">/70</span></td>
+        <td class="num">77<span class="muted"> min</span></td>
+        <td class="num">6,182</td>
+      </tr>
+      <tr>
+        <td class="rank">2</td>
+        <td><a href="#opus-5.5"><strong>Claude Opus 5.5 (high effort)</strong></a>
+          <div class="muted">Halcyon Bay</div></td>
+        <td class="num total">86</td>
+        <td class="bar-cell"><div class="bar" role="img" aria-label="30 play-test points and 56 feature points out of 100">
+          <span class="seg play" style="width:30%"></span><span class="seg feat" style="width:56%"></span></div></td>
+        <td class="num">30<span class="muted">/30</span></td>
+        <td class="num">56<span class="muted">/70</span></td>
+        <td class="num">38<span class="muted"> min</span></td>
+        <td class="num">4,053</td>
+      </tr>
+      <tr>
+        <td class="rank">3</td>
+        <td><a href="#inkling-2-mini"><strong>Inkling 2 Mini (local)</strong></a>
+          <div class="muted">Lumen City</div></td>
+        <td class="num total">60</td>
+        <td class="bar-cell"><div class="bar" role="img" aria-label="30 play-test points and 30 feature points out of 100">
+          <span class="seg play" style="width:30%"></span><span class="seg feat" style="width:30%"></span></div></td>
+        <td class="num">30<span class="muted">/30</span></td>
+        <td class="num">30<span class="muted">/70</span></td>
+        <td class="num">203<span class="muted"> min</span></td>
+        <td class="num">2,007</td>
+      </tr></tbody>
+  </table>
+  </div>
+  <div class="legend"><span><i style="background:var(--play)"></i>Play-test (30)</span><span><i style="background:var(--feat)"></i>Features (70)</span></div>
+
+  
+    <section class="card" id="fable-5.2">
+      <header>
+        <div>
+          <h2>Claude Fable 5.2 (high effort)</h2>
+          <p class="muted">&quot;Port Vesper&quot; Claude Code, cloud model</p>
+        </div>
+        <div class="score">92<span class="muted">/100</span></div>
+      </header>
+      <p>A seaside city that feels like a finished small game: a boardwalk with a Ferris wheel pier, a park, a plaza and container docks, busy with traffic and people, with four working activities and the best lighting of the three.</p>
+      <video controls muted preload="metadata" poster="fable-5.2/1-start.jpg" src="fable-5.2/gameplay.mp4"></video>
+      <div class="shots"><figure><img src="fable-5.2/1-start.jpg" alt="Claude Fable 5.2 (high effort): On load" loading="lazy"><figcaption>On load</figcaption></figure><figure><img src="fable-5.2/2-driving.jpg" alt="Claude Fable 5.2 (high effort): Driving" loading="lazy"><figcaption>Driving</figcaption></figure><figure><img src="fable-5.2/3-on-foot.jpg" alt="Claude Fable 5.2 (high effort): On foot" loading="lazy"><figcaption>On foot</figcaption></figure><figure><img src="fable-5.2/4-later.jpg" alt="Claude Fable 5.2 (high effort): 30 seconds later" loading="lazy"><figcaption>30 seconds later</figcaption></figure></div>
+      <div class="cols">
+        <div>
+          <h3>Play-test <span class="muted">10 of 10</span></h3>
+          <ul class="checks"><li class="pass"><span class="mark">pass</span> Loads without errors</li><li class="pass"><span class="mark">pass</span> Draws a scene <span class="muted">313 colours</span></li><li class="pass"><span class="mark">pass</span> Test hook reports the player on foot <span class="muted">{&quot;mode&quot;:&quot;foot&quot;,&quot;x&quot;:-127.5,&quot;y&quot;:0.15,&quot;z&quot;:186.60000000000002,&quot;speed&quot;:0}</span></li><li class="pass"><span class="mark">pass</span> F gets into the car <span class="muted">mode car</span></li><li class="pass"><span class="mark">pass</span> W drives the car <span class="muted">39.6 m in 3 s, top 25.4 m/s</span></li><li class="pass"><span class="mark">pass</span> D steers the car <span class="muted">30 degrees</span></li><li class="pass"><span class="mark">pass</span> F gets out again <span class="muted">mode foot</span></li><li class="pass"><span class="mark">pass</span> W walks <span class="muted">8.6 m in 3 s</span></li><li class="pass"><span class="mark">pass</span> Holds 30 frames per second <span class="muted">60 fps, browser limit 61</span></li><li class="pass"><span class="mark">pass</span> 30 more seconds of play without errors</li></ul>
+        </div>
+        <div>
+          <h3>Features <span class="muted">62 of 70</span></h3>
+          <table class="areas"><tr><th scope="row">City</th><td class="num">9<span class="muted">/10</span></td><td>About twenty blocks with eight building types, shopfronts and signs, plus a park, a plaza, a beach promenade with a pier, and docks with stunt ramps.</td></tr><tr><th scope="row">On foot</th><td class="num">8<span class="muted">/10</span></td><td>Jointed figure with knees and elbows; walks, runs, jumps and tumbles, and kicks loose props. Solid against everything tried.</td></tr><tr><th scope="row">Vehicles</th><td class="num">9<span class="muted">/10</span></td><td>Seven car models, any of them takeable whether parked or moving (checked by taking a patrol car). Slides, handbrake drifts and ramp jumps. Got wedged on street furniture once.</td></tr><tr><th scope="row">Living world</th><td class="num">9<span class="muted">/10</span></td><td>55 AI drivers that stop at working traffic lights and 60 pedestrians who cross at corners and dodge cars.</td></tr><tr><th scope="row">HUD</th><td class="num">9<span class="muted">/10</span></td><td>Rotating minimap with job blips, speedometer with gear, cash, heat stars, and an objective panel with distance, bearing and timer.</td></tr><tr><th scope="row">Something to do</th><td class="num">9<span class="muted">/10</span></td><td>Three-parcel courier run paid $740 when completed; nine-gate street sprint started; stealing a patrol car raised heat to 2. Also taxi shifts and 24 tokens.</td></tr><tr><th scope="row">Atmosphere</th><td class="num">9<span class="muted">/10</span></td><td>Day and night with clouds, sea, shadows, bloom, neon signs and lit windows after dark. Sound and radio are in the code but were not listened to.</td></tr></table>
+        </div>
+      </div>
+      <p class="muted">One unattended session of about 77 minutes with full shell access. 17 source modules.</p>
+      <p><a href="../runs/fable-5.2/index.html">Play it</a> <span class="muted">(needs a local server, see below)</span></p>
+    </section>
+    <section class="card" id="opus-5.5">
+      <header>
+        <div>
+          <h2>Claude Opus 5.5 (high effort)</h2>
+          <p class="muted">&quot;Halcyon Bay&quot; Claude Code, cloud model</p>
+        </div>
+        <div class="score">86<span class="muted">/100</span></div>
+      </header>
+      <p>A complete harbour town built in half the time: named streets, working traffic lights, courier jobs, a race and a wanted level all function. It looks plainer than Port Vesper, with boxier cars and flatter buildings.</p>
+      <video controls muted preload="metadata" poster="opus-5.5/1-start.jpg" src="opus-5.5/gameplay.mp4"></video>
+      <div class="shots"><figure><img src="opus-5.5/1-start.jpg" alt="Claude Opus 5.5 (high effort): On load" loading="lazy"><figcaption>On load</figcaption></figure><figure><img src="opus-5.5/2-driving.jpg" alt="Claude Opus 5.5 (high effort): Driving" loading="lazy"><figcaption>Driving</figcaption></figure><figure><img src="opus-5.5/3-on-foot.jpg" alt="Claude Opus 5.5 (high effort): On foot" loading="lazy"><figcaption>On foot</figcaption></figure><figure><img src="opus-5.5/4-later.jpg" alt="Claude Opus 5.5 (high effort): 30 seconds later" loading="lazy"><figcaption>30 seconds later</figcaption></figure></div>
+      <div class="cols">
+        <div>
+          <h3>Play-test <span class="muted">10 of 10</span></h3>
+          <ul class="checks"><li class="pass"><span class="mark">pass</span> Loads without errors</li><li class="pass"><span class="mark">pass</span> Draws a scene <span class="muted">163 colours</span></li><li class="pass"><span class="mark">pass</span> Test hook reports the player on foot <span class="muted">{&quot;mode&quot;:&quot;foot&quot;,&quot;x&quot;:23.2,&quot;y&quot;:0.15,&quot;z&quot;:-80,&quot;speed&quot;:0}</span></li><li class="pass"><span class="mark">pass</span> F gets into the car <span class="muted">mode car</span></li><li class="pass"><span class="mark">pass</span> W drives the car <span class="muted">43.4 m in 3 s, top 27.1 m/s</span></li><li class="pass"><span class="mark">pass</span> D steers the car <span class="muted">45 degrees</span></li><li class="pass"><span class="mark">pass</span> F gets out again <span class="muted">mode foot</span></li><li class="pass"><span class="mark">pass</span> W walks <span class="muted">7.2 m in 3 s</span></li><li class="pass"><span class="mark">pass</span> Holds 30 frames per second <span class="muted">60 fps, browser limit 61</span></li><li class="pass"><span class="mark">pass</span> 30 more seconds of play without errors</li></ul>
+        </div>
+        <div>
+          <h3>Features <span class="muted">56 of 70</span></h3>
+          <table class="areas"><tr><th scope="row">City</th><td class="num">8<span class="muted">/10</span></td><td>Six-by-six grid of named streets with crossings, about 60 buildings in three styles, a park, a fountain plaza, and a promenade with a pier and lighthouse.</td></tr><tr><th scope="row">On foot</th><td class="num">7<span class="muted">/10</span></td><td>Blocky jointed figure with walk, run and jump animations; steps up onto low objects. Solid collisions.</td></tr><tr><th scope="row">Vehicles</th><td class="num">8<span class="muted">/10</span></td><td>Seven car models, parked or carjacked from AI drivers (checked with a police cruiser). Drifts, skid marks, collisions. Models are simple boxes.</td></tr><tr><th scope="row">Living world</th><td class="num">8<span class="muted">/10</span></td><td>26 AI cars and 2 police patrols obeying traffic lights, and 44 pedestrians who flee speeding cars.</td></tr><tr><th scope="row">HUD</th><td class="num">9<span class="muted">/10</span></td><td>Rotating minimap, dial speedometer with gear, clock, cash, wanted stars, and the current street and district name.</td></tr><tr><th scope="row">Something to do</th><td class="num">9<span class="muted">/10</span></td><td>Timed courier job paid $516 when completed, with fragile cargo that loses value in crashes; 12-checkpoint race started; stealing a cruiser gave 2 wanted stars.</td></tr><tr><th scope="row">Atmosphere</th><td class="num">7<span class="muted">/10</span></td><td>Seven-minute day and night with stars, street-lamp pools, headlights, a lighthouse beam and a rippling sea. Flatter lighting, no post-processing. Sound not listened to.</td></tr></table>
+        </div>
+      </div>
+      <p class="muted">One unattended session of about 38 minutes with full shell access. 13 source modules.</p>
+      <p><a href="../runs/opus-5.5/index.html">Play it</a> <span class="muted">(needs a local server, see below)</span></p>
+    </section>
+    <section class="card" id="inkling-2-mini">
+      <header>
+        <div>
+          <h2>Inkling 2 Mini (local)</h2>
+          <p class="muted">&quot;Lumen City&quot; Claude Code, model served by llama.cpp on this laptop</p>
+        </div>
+        <div class="score">60<span class="muted">/100</span></div>
+      </header>
+      <p>A real, working game from a model running on a laptop: it loaded cleanly the first time it was run and passes every play-test check. It is much barer than the other two: one car model, a handful of traffic cars and pedestrians, and a single delivery loop. Its A and D keys also turn the wrong way round.</p>
+      <video controls muted preload="metadata" poster="inkling-2-mini/1-start.jpg" src="inkling-2-mini/gameplay.mp4"></video>
+      <div class="shots"><figure><img src="inkling-2-mini/1-start.jpg" alt="Inkling 2 Mini (local): On load" loading="lazy"><figcaption>On load</figcaption></figure><figure><img src="inkling-2-mini/2-driving.jpg" alt="Inkling 2 Mini (local): Driving" loading="lazy"><figcaption>Driving</figcaption></figure><figure><img src="inkling-2-mini/3-on-foot.jpg" alt="Inkling 2 Mini (local): On foot" loading="lazy"><figcaption>On foot</figcaption></figure><figure><img src="inkling-2-mini/4-later.jpg" alt="Inkling 2 Mini (local): 30 seconds later" loading="lazy"><figcaption>30 seconds later</figcaption></figure></div>
+      <div class="cols">
+        <div>
+          <h3>Play-test <span class="muted">10 of 10</span></h3>
+          <ul class="checks"><li class="pass"><span class="mark">pass</span> Loads without errors</li><li class="pass"><span class="mark">pass</span> Draws a scene <span class="muted">84 colours</span></li><li class="pass"><span class="mark">pass</span> Test hook reports the player on foot <span class="muted">{&quot;mode&quot;:&quot;foot&quot;,&quot;x&quot;:8.172591068296024,&quot;y&quot;:0.12,&quot;z&quot;:-39.4943746627548,&quot;speed&quot;:0}</span></li><li class="pass"><span class="mark">pass</span> F gets into the car <span class="muted">mode car</span></li><li class="pass"><span class="mark">pass</span> W drives the car <span class="muted">44.9 m in 3 s, top 24.9 m/s</span></li><li class="pass"><span class="mark">pass</span> D steers the car <span class="muted">59 degrees</span></li><li class="pass"><span class="mark">pass</span> F gets out again <span class="muted">mode foot</span></li><li class="pass"><span class="mark">pass</span> W walks <span class="muted">8.7 m in 3 s</span></li><li class="pass"><span class="mark">pass</span> Holds 30 frames per second <span class="muted">60 fps, browser limit 60</span></li><li class="pass"><span class="mark">pass</span> 30 more seconds of play without errors</li></ul>
+        </div>
+        <div>
+          <h3>Features <span class="muted">30 of 70</span></h3>
+          <table class="areas"><tr><th scope="row">City</th><td class="num">5<span class="muted">/10</span></td><td>Four-by-four grid of box towers sharing one window texture, with street lamps, a park block and a plaza. No crossings, traffic lights or landmarks.</td></tr><tr><th scope="row">On foot</th><td class="num">4<span class="muted">/10</span></td><td>Blocky figure with a walk cycle, run and jump; collides with buildings and cars. A and D are swapped (D turns left), and the camera passes through buildings when you stand next to one.</td></tr><tr><th scope="row">Vehicles</th><td class="num">3<span class="muted">/10</span></td><td>Four parked cars of one model in different colours. Driving, braking, reversing and collisions work, but steering is mirrored (D steers left). Traffic cars cannot be taken, and the headlights light very little.</td></tr><tr><th scope="row">Living world</th><td class="num">3<span class="muted">/10</span></td><td>4 traffic cars and 9 pedestrians on fixed routes. They slow for the player but do nothing else.</td></tr><tr><th scope="row">HUD</th><td class="num">6<span class="muted">/10</span></td><td>Whole-city minimap with player, cars and mission marker, a km/h readout, score, an objective panel with distance, and key hints.</td></tr><tr><th scope="row">Something to do</th><td class="num">4<span class="muted">/10</span></td><td>One endless courier loop: pick up at the beacon, deliver for +250 (checked, it works). No timer, no way to fail, nothing else to do.</td></tr><tr><th scope="row">Atmosphere</th><td class="num">5<span class="muted">/10</span></td><td>Three-minute day and night with shadows, fog and lit windows; roads go almost black at night. Synthesised sound is in the code but was not listened to.</td></tr></table>
+        </div>
+      </div>
+      <p class="muted">One unattended session of 203 minutes on an M4 Pro with 48 GB, 4-bit weights (IQ4_NL), a 100,000-token context and roughly 8 to 23 tokens per second. Shell access was limited to the test tool and read-only commands. It wrote about 2,000 lines over three hours before running the game once, and that first run loaded without errors.</p>
+      <p><a href="../runs/inkling-2-mini/index.html">Play it</a> <span class="muted">(needs a local server, see below)</span></p>
+    </section>
+
+  <section class="method">
+    <h2>How this was scored</h2>
+    <ul>
+      <li><strong>Play-test, 30 points.</strong> Ten scripted checks in headless Chrome, 3 points
+      each, identical for every entry (<code>harness/score.mjs</code>). The steering check only
+      asks that D changes the car's direction, so it passed Inkling's mirrored steering; that
+      shows up in its feature scores instead.</li>
+      <li><strong>Features, 70 points.</strong> Seven areas from the brief, 10 points each, scored
+      by Claude Fable 5.2 after playing each game through the test tool and reading its code.
+      The judge knew which model built which game, and is itself one of the contestants' models.</li>
+      <li><strong>One run per model.</strong> A single attempt each, so small differences are noise.</li>
+      <li><strong>Not a level field.</strong> Inkling 2 Mini ran on a laptop with 4-bit weights, a
+      100,000-token context and a shell limited to the test tool. The Claude models ran in the
+      cloud with full shell access.</li>
+      <li><strong>To play:</strong> from the project folder run <code>python3 -m http.server 8000</code>
+      and open <code>http://localhost:8000/results/</code>.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
