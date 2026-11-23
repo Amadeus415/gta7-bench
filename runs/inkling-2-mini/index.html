@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumen City</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0e1a; }
+  #app { position: fixed; inset: 0; }
+  canvas.game { display: block; width: 100%; height: 100%; }
+  .hud { position: fixed; pointer-events: none; z-index: 10; color: #fff;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+  .panel { background: rgba(10, 14, 24, 0.62); border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px; backdrop-filter: blur(6px); box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
+  #title-box { top: 14px; left: 14px; padding: 10px 14px; }
+  #title-box h1 { font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: #ffd76a; font-weight: 800; }
+  #title-box .sub { font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  #score-line { margin-top: 8px; font-size: 12px; color: #cfe3ff; letter-spacing: 1px; }
+  #score-line b { color: #ffd76a; font-size: 14px; }
+  #mission-box { top: 14px; right: 14px; padding: 10px 14px; min-width: 230px; text-align: right; }
+  #mission-box .label { font-size: 9px; letter-spacing: 2px; color: #7de3a8; font-weight: 700; }
+  #mission-box .obj { font-size: 14px; margin-top: 3px; line-height: 1.35; }
+  #mission-box .meta { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 5px; letter-spacing: 0.5px; }
+  #mission-flash { font-size: 11px; margin-top: 5px; color: #7de3a8; opacity: 0; transition: opacity .25s; font-weight: 700; }
+  #mission-flash.show { opacity: 1; }
+  #minimap-box { bottom: 14px; left: 14px; padding: 8px; }
+  #minimap-box .label, #speed-box .label { font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.55); margin: 0 0 5px 2px; font-weight: 700; }
+  #minimap { display: block; width: 190px; height: 190px; border-radius: 6px; background: rgba(8,12,20,0.8); }
+  #controls-box { bottom: 14px; right: 14px; padding: 9px 12px; font-size: 11px; line-height: 1.85; }
+  #controls-box .key { display: inline-block; min-width: 24px; text-align: center; padding: 1px 6px; margin-right: 6px;
+    border-radius: 5px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
+    font-family: "SF Mono", Consolas, monospace; font-size: 10px; }
+  #speed-box { bottom: 14px; left: 50%; transform: translateX(-50%); padding: 6px 20px 8px; text-align: center; display: none; }
+  #speed-value { font-size: 34px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+  #speed-unit { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-top: 3px; }
+  #prompt-box { bottom: 108px; left: 50%; transform: translateX(-50%); padding: 7px 18px;
+    border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    background: rgba(12,18,30,0.78); border: 1px solid rgba(255,215,106,0.5); color: #ffe9b0;
+    display: none; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+  #banner { top: 22%; left: 50%; transform: translate(-50%,-50%); padding: 14px 42px; font-size: 26px;
+    font-weight: 800; letter-spacing: 2px; color: #7de3a8; text-shadow: 0 2px 18px rgba(0,0,0,0.6);
+    opacity: 0; transition: opacity .3s; text-align: center; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="title-box" class="hud panel">
+  <h1>Lumen City</h1>
+  <div class="sub">OPEN-WORLD COURIER</div>
+  <div id="score-line">SCORE <b id="score-value">0</b> &nbsp;&middot;&nbsp; DELIVERIES <b id="deliveries-value">0</b></div>
+</div>
+<div id="mission-box" class="hud panel">
+  <div class="label">DELIVERY</div>
+  <div class="obj" id="mission-obj">Picking up package&hellip;</div>
+  <div class="meta" id="mission-meta"></div>
+  <div id="mission-flash">Delivered! +250</div>
+</div>
+<div id="minimap-box" class="hud panel">
+  <div class="label">CITY MAP</div>
+  <canvas id="minimap" width="380" height="380"></canvas>
+</div>
+<div id="controls-box" class="hud panel">
+  <div><span class="key">W A S D</span>drive / walk</div>
+  <div><span class="key">Shift</span>run <span class="key">Space</span>jump / brake</div>
+  <div><span class="key">F</span>get in / out of car</div>
+</div>
+<div id="speed-box" class="hud panel">
+  <div id="speed-value">0</div>
+  <div id="speed-unit">KM/H</div>
+</div>
+<div id="prompt-box" class="hud"></div>
+<div id="banner" class="hud"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

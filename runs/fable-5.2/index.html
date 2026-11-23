@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Port Vesper</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --ink: #f4efe6; --dim: rgba(244,239,230,.62); --panel: rgba(14,18,26,.58); --line: rgba(255,255,255,.14);
+    --coral: #ff6b4a; --gold: #ffcf5a; --teal: #45d6c0; --sky: #6fc3ff;
+    --font: "Avenir Next", "Futura", "Century Gothic", "Trebuchet MS", "Helvetica Neue", Arial, sans-serif;
+    --cond: "Avenir Next Condensed", "Futura", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  }
+  html, body { margin: 0; height: 100%; background: #0b0e14; overflow: hidden; }
+  body { font-family: var(--font); color: var(--ink); user-select: none; -webkit-user-select: none; cursor: default; }
+  canvas#game { display: block; width: 100vw; height: 100vh; }
+  #hud { position: fixed; inset: 0; pointer-events: none; font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0,0,0,.55); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+  #brand { position: absolute; left: 22px; top: 16px; }
+  #brand .logo { font: italic 800 25px/1 var(--cond); letter-spacing: .09em; }
+  #brand .logo b { color: var(--coral); font-weight: 800; }
+  #brand .where { margin-top: 7px; font-size: 13px; letter-spacing: .13em; text-transform: uppercase; color: var(--dim); }
+  #brand .where span { color: var(--ink); }
+
+  #controls { position: absolute; left: 22px; top: 82px; padding: 10px 13px 11px; font-size: 12px; line-height: 1.75; min-width: 196px; }
+  #controls h4 { margin: 0 0 3px; font: 700 10px/1.6 var(--font); letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+  #controls .row { display: flex; gap: 9px; align-items: center; white-space: nowrap; }
+  #controls .keys { min-width: 62px; display: flex; gap: 3px; }
+  kbd { display: inline-block; min-width: 13px; padding: 0 4px; height: 17px; line-height: 17px; text-align: center; font: 700 10px var(--font);
+        color: #10141c; background: var(--ink); border-radius: 4px; text-shadow: none; }
+  #controls .extra { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--line); color: var(--dim); }
+  #controls .extra kbd { background: rgba(244,239,230,.75); }
+
+  #stats { position: absolute; right: 22px; top: 16px; text-align: right; }
+  #cash { font: 800 31px/1 var(--cond); letter-spacing: .03em; color: #9df0b0; }
+  #cash.bump { animation: bump .35s ease-out; }
+  @keyframes bump { 0% { transform: scale(1.25); color: #fff; } 100% { transform: scale(1); } }
+  #heat { margin-top: 7px; font-size: 21px; letter-spacing: 3px; color: rgba(255,255,255,.2); }
+  #heat i { font-style: normal; }
+  #heat i.on { color: var(--gold); text-shadow: 0 0 10px rgba(255,190,60,.8); }
+  #heat.cooling i.on { animation: blink .5s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  #tokens { margin-top: 5px; font-size: 12px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+  #tokens b { color: var(--gold); }
+  #best { margin-top: 2px; font-size: 11px; letter-spacing: .12em; color: var(--dim); text-transform: uppercase; }
+
+  #objective { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); padding: 9px 18px 10px; text-align: center; min-width: 300px; max-width: 520px; }
+  #objective .kicker { font: 700 10px/1.5 var(--font); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+  #objective .text { font-size: 15px; font-weight: 600; margin-top: 2px; }
+  #objective .meta { margin-top: 4px; font-size: 13px; color: var(--dim); display: flex; gap: 14px; justify-content: center; align-items: center; }
+  #objective .timer { font: 800 20px/1 var(--cond); color: var(--ink); letter-spacing: .04em; }
+  #objective .timer.low { color: var(--coral); }
+  #arrow { display: inline-block; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 15px solid var(--gold); }
+
+  #toast { position: absolute; left: 50%; top: 27%; transform: translate(-50%, -50%); text-align: center; opacity: 0; transition: opacity .35s; white-space: nowrap; }
+  #toast.show { opacity: 1; }
+  #toast .big { font: italic 800 54px/1 var(--cond); letter-spacing: .05em; text-shadow: 0 3px 0 rgba(0,0,0,.35), 0 0 30px rgba(0,0,0,.45); }
+  #toast .sub { margin-top: 9px; font-size: 16px; font-weight: 600; letter-spacing: .08em; }
+  #toast.good .big { color: var(--gold); } #toast.bad .big { color: var(--coral); } #toast.cool .big { color: var(--teal); }
+
+  #feed { position: absolute; right: 22px; top: 132px; text-align: right; font-size: 13px; font-weight: 600; }
+  #feed div { margin-top: 4px; animation: feed 3.2s forwards; }
+  #feed b { color: #9df0b0; }
+  @keyframes feed { 0% { opacity: 0; transform: translateX(14px); } 8% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+  #prompt { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); padding: 8px 16px; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity .2s; white-space: nowrap; }
+  #prompt.show { opacity: 1; }
+  #prompt kbd { height: 20px; line-height: 20px; min-width: 16px; font-size: 12px; margin-right: 7px; }
+
+  #mapwrap { position: absolute; left: 22px; bottom: 22px; width: 196px; height: 196px; border-radius: 50%; overflow: hidden;
+             border: 2px solid rgba(255,255,255,.35); box-shadow: 0 6px 24px rgba(0,0,0,.45), inset 0 0 22px rgba(0,0,0,.5); background: #1d3a4d; }
+  #mapwrap.alert { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(255,80,60,.35), 0 6px 24px rgba(0,0,0,.45); }
+  #minimap { width: 196px; height: 196px; display: block; }
+
+  #dash { position: absolute; right: 22px; bottom: 20px; width: 190px; text-align: center; opacity: 0; transition: opacity .25s; }
+  #dash.show { opacity: 1; }
+  #speedo { width: 190px; height: 150px; display: block; }
+  #carname { font: italic 700 15px/1.2 var(--cond); letter-spacing: .12em; text-transform: uppercase; margin-top: -4px; }
+  #radio { font-size: 11px; letter-spacing: .1em; color: var(--dim); margin-top: 3px; text-transform: uppercase; }
+
+  #splash { position: absolute; left: 50%; top: 30%; transform: translate(-50%, -50%); text-align: center; animation: splash 4s forwards; }
+  #splash .t { font: italic 800 84px/0.9 var(--cond); letter-spacing: .08em; text-shadow: 0 4px 0 rgba(0,0,0,.3), 0 0 60px rgba(255,120,70,.55); }
+  #splash .t b { color: var(--coral); }
+  #splash .s { margin-top: 14px; font-size: 14px; letter-spacing: .42em; text-transform: uppercase; }
+  @keyframes splash { 0% { opacity: 0; transform: translate(-50%, -46%); } 10% { opacity: 1; transform: translate(-50%, -50%); } 68% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+  #fade { position: absolute; inset: 0; background: #05070b; opacity: 0; transition: opacity .5s; }
+  #fade.on { opacity: 1; }
+  #warn { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); font: 800 17px var(--cond); letter-spacing: .2em; color: var(--coral); opacity: 0; text-transform: uppercase; }
+  #warn.show { opacity: 1; animation: blink .4s steps(2) infinite; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+  <div id="brand">
+    <div class="logo">PORT <b>VESPER</b></div>
+    <div class="where"><span id="district">The Promenade</span> · <span id="clock">16:12</span></div>
+  </div>
+  <div id="controls" class="panel"></div>
+  <div id="stats">
+    <div id="cash">$0</div>
+    <div id="heat"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></div>
+    <div id="tokens">Tokens <b>0</b> / 24</div>
+    <div id="best"></div>
+  </div>
+  <div id="feed"></div>
+  <div id="objective" class="panel">
+    <div class="kicker"></div>
+    <div class="text"></div>
+    <div class="meta"><span id="arrow"></span><span class="dist"></span><span class="timer"></span></div>
+  </div>
+  <div id="toast"><div class="big"></div><div class="sub"></div></div>
+  <div id="warn">Keep moving</div>
+  <div id="prompt" class="panel"></div>
+  <div id="mapwrap"><canvas id="minimap" width="392" height="392"></canvas></div>
+  <div id="dash">
+    <canvas id="speedo" width="380" height="300"></canvas>
+    <div id="carname"></div>
+    <div id="radio"></div>
+  </div>
+  <div id="splash"><div class="t">PORT <b>VESPER</b></div><div class="s">a small city by the sea</div></div>
+  <div id="fade"></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
